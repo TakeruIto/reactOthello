@@ -69,11 +69,6 @@ function Field() {
   };
 
   React.useEffect(() => {
-    console.log(
-      turn,
-      isEnd,
-      validatedCells,
-    );
     if (-1 < isEnd && isEnd < 2) {
       if (!validatedCells.some((v) => v)) {
         dispatch({
@@ -98,9 +93,6 @@ function Field() {
         }, 3000);
       }
     } else {
-      console.log(
-        "kita"
-      );
       dispatch({
         type: "UPDATE_IS_END",
         payload: isEnd + 1,

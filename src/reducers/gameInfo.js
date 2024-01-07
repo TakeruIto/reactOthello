@@ -23,13 +23,13 @@ const POW3 = [
   3 ** 11,
 ];
 
-const pop_digit = [];
+const popDigit = [];
 for (let i = 0; i < N_LINE; i++) {
   const v = [];
   for (let j = 0; j < 8; j++) {
     v.push(Math.floor(i / POW3[8 - 1 - j]) % 3);
   }
-  pop_digit.push(v);
+  popDigit.push(v);
 }
 
 const MOVE_OFFSET = [
@@ -86,11 +86,11 @@ const CELL_WEIGHT = [
 ];
 
 // インデックス形式から一般的な配列形式に変換
-const translate_to_arr = (boardIdx) => {
+const translateToArr = (boardIdx) => {
   const res = [...initialCells];
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
-      res[i * 8 + j] = pop_digit[boardIdx[i]][j];
+      res[i * 8 + j] = popDigit[boardIdx[i]][j];
     }
   }
   return res;
@@ -104,15 +104,15 @@ const translateFromArr = (arr) => {
   }
   for (let i = 0; i < 64; ++i) {
     for (let j = 0; j < 4; ++j) {
-      if (place_included[i][j] === -1) {
+      if (placeIncluded[i][j] === -1) {
         continue;
       }
       if (arr[i] === BLACK) {
-        boardIdx[place_included[i][j]] -=
-          2 * POW3[8 - 1 - local_place[place_included[i][j]][i]];
+        boardIdx[placeIncluded[i][j]] -=
+          2 * POW3[8 - 1 - localPlace[placeIncluded[i][j]][i]];
       } else if (arr[i] === WHITE) {
-        boardIdx[place_included[i][j]] -=
-          POW3[8 - 1 - local_place[place_included[i][j]][i]];
+        boardIdx[placeIncluded[i][j]] -=
+          POW3[8 - 1 - localPlace[placeIncluded[i][j]][i]];
       }
     }
   }
@@ -138,7 +138,7 @@ const trans = (pt, k) => {
 };
 
 // ビットボードで1行/列において着手
-const move_line_half = (p, o, place, k) => {
+const moveLineHalf = (p, o, place, k) => {
   const pt = 1 << (8 - 1 - place);
   if (pt & p || pt & o) {
     return 0;
@@ -156,43 +156,43 @@ const move_line_half = (p, o, place, k) => {
 };
 
 // 石をひっくり返す
-const flip = (boardIdx, g_place, player) => {
+const flip = (boardIdx, gPlace, player) => {
   for (let i = 0; i < 3; ++i)
-    boardIdx[place_included[g_place][i]] =
-      flip_arr[player][boardIdx[place_included[g_place][i]]][
-        local_place[place_included[g_place][i]][g_place]
+    boardIdx[placeIncluded[gPlace][i]] =
+      flipArr[player][boardIdx[placeIncluded[gPlace][i]]][
+        localPlace[placeIncluded[gPlace][i]][gPlace]
       ];
-  if (place_included[g_place][3] !== -1)
-    boardIdx[place_included[g_place][3]] =
-      flip_arr[player][boardIdx[place_included[g_place][3]]][
-        local_place[place_included[g_place][3]][g_place]
+  if (placeIncluded[gPlace][3] !== -1)
+    boardIdx[placeIncluded[gPlace][3]] =
+      flipArr[player][boardIdx[placeIncluded[gPlace][3]]][
+        localPlace[placeIncluded[gPlace][3]][gPlace]
       ];
   return boardIdx;
 };
 
 // 石をひっくり返す
-const move_p = (boardIdx, g_place, player, i) => {
-  const place = local_place[place_included[g_place][i]][g_place];
+const moveP = (boardIdx, gPlace, player, i) => {
+  const place = localPlace[placeIncluded[gPlace][i]][gPlace];
   let boardIdxNew = [...boardIdx];
   for (
     let j = 1;
-    j <= move_arr[player][boardIdx[place_included[g_place][i]]][place][0];
+    j <= moveArr[player][boardIdx[placeIncluded[gPlace][i]]][place][0];
     j++
   ) {
     boardIdxNew = flip(
       boardIdxNew,
-      g_place - MOVE_OFFSET[place_included[g_place][i]] * j,
+      gPlace - MOVE_OFFSET[placeIncluded[gPlace][i]] * j,
       player,
     );
   }
   for (
     let j = 1;
-    j <= move_arr[player][boardIdx[place_included[g_place][i]]][place][1];
+    j <= moveArr[player][boardIdx[placeIncluded[gPlace][i]]][place][1];
     j++
   ) {
     boardIdxNew = flip(
       boardIdxNew,
-      g_place + MOVE_OFFSET[place_included[g_place][i]] * j,
+      gPlace + MOVE_OFFSET[placeIncluded[gPlace][i]] * j,
       player,
     );
   }
@@ -201,53 +201,53 @@ const move_p = (boardIdx, g_place, player, i) => {
 
 const move = (boardIdx, index, turn) => {
   let boardIdxNew = [...boardIdx];
-  boardIdxNew = move_p(boardIdxNew, index, turn, 0);
-  boardIdxNew = move_p(boardIdxNew, index, turn, 1);
-  boardIdxNew = move_p(boardIdxNew, index, turn, 2);
-  if (place_included[index][3] !== -1) {
-    boardIdxNew = move_p(boardIdxNew, index, turn, 3);
+  boardIdxNew = moveP(boardIdxNew, index, turn, 0);
+  boardIdxNew = moveP(boardIdxNew, index, turn, 1);
+  boardIdxNew = moveP(boardIdxNew, index, turn, 2);
+  if (placeIncluded[index][3] !== -1) {
+    boardIdxNew = moveP(boardIdxNew, index, turn, 3);
   }
   for (let i = 0; i < 3; i++) {
-    boardIdxNew[place_included[index][i]] =
-      put_arr[turn][boardIdxNew[place_included[index][i]]][
-        local_place[place_included[index][i]][index]
+    boardIdxNew[placeIncluded[index][i]] =
+      putArr[turn][boardIdxNew[placeIncluded[index][i]]][
+        localPlace[placeIncluded[index][i]][index]
       ];
   }
-  if (place_included[index][3] !== -1) {
-    boardIdxNew[place_included[index][3]] =
-      put_arr[turn][boardIdxNew[place_included[index][3]]][
-        local_place[place_included[index][3]][index]
+  if (placeIncluded[index][3] !== -1) {
+    boardIdxNew[placeIncluded[index][3]] =
+      putArr[turn][boardIdxNew[placeIncluded[index][3]]][
+        localPlace[placeIncluded[index][3]][index]
       ];
   }
   return boardIdxNew;
 };
 
-const isLegal = (boardIdx, g_place, turn) => {
+const isLegal = (boardIdx, gPlace, turn) => {
   let res = false;
   for (let i = 0; i < 3; i++) {
     res |=
-      legal_arr[turn][boardIdx[place_included[g_place][i]]][
-        local_place[place_included[g_place][i]][g_place]
+      legalArr[turn][boardIdx[placeIncluded[gPlace][i]]][
+        localPlace[placeIncluded[gPlace][i]][gPlace]
       ];
   }
-  if (place_included[g_place][3] !== -1) {
+  if (placeIncluded[gPlace][3] !== -1) {
     res |=
-      legal_arr[turn][boardIdx[place_included[g_place][3]]][
-        local_place[place_included[g_place][3]][g_place]
+      legalArr[turn][boardIdx[placeIncluded[gPlace][3]]][
+        localPlace[placeIncluded[gPlace][3]][gPlace]
       ];
   }
   return res;
 };
 
-let transpose_table = new Map(); // 現在の探索結果を入れる置換表: 同じ局面に当たった時用
-let former_transpose_table = new Map(); // 前回の探索結果が入る置換表: move orde
+let transposeTable = new Map(); // 現在の探索結果を入れる置換表: 同じ局面に当たった時用
+let formerTransposeTable = new Map(); // 前回の探索結果が入る置換表: move orde
 
 // move ordering用評価値の計算
-const calc_move_ordering_value = (b, turn) => {
+const calcMoveOrderingValue = (b, turn) => {
   let res;
-  if (former_transpose_table[`${turn}-${b}`]) {
+  if (formerTransposeTable[`${turn}-${b}`]) {
     // 前回の探索で枝刈りされなかった
-    res = CACHE_HIT_BONUS - former_transpose_table[`${turn}-${b}`];
+    res = CACHE_HIT_BONUS - formerTransposeTable[`${turn}-${b}`];
   } else {
     // 前回の探索で枝刈りされた
     res = -evaluate(b, turn);
@@ -259,10 +259,10 @@ const calc_move_ordering_value = (b, turn) => {
 const evaluate = (b, turn) => {
   let res = 0;
   for (let i = 0; i < 8 / 2; i++) {
-    res += cell_score[i][b[i]];
+    res += cellScore[i][b[i]];
   }
   for (let i = 0; i < 8 / 2; ++i) {
-    res += cell_score[8 / 2 - 1 - i][b[8 / 2 + i]];
+    res += cellScore[8 / 2 - 1 - i][b[8 / 2 + i]];
   }
   if (turn === WHITE) {
     res = -res;
@@ -271,25 +271,21 @@ const evaluate = (b, turn) => {
 };
 
 const sortFnc = (a, b) => a.value - b.value;
-let visited = 0;
-let aaa = 0;
-let bbb = 0;
+
 // move orderingと置換表つきnegaalpha法
-const nega_alpha_transpose = (b, depth, passed, alpha, beta, turn) => {
-  visited++;
+const negaAlphaTranspose = (b, depth, passed, alpha, beta, turn) => {
   // 葉ノードでは評価関数を実行する
   if (depth === 0) {
     return evaluate(b.index, turn);
   }
 
   // 同じ局面に遭遇したらハッシュテーブルの値を返す
-  if (transpose_table[`${turn}-${b.index}`]) {
-    aaa++;
-    return transpose_table[`${turn}-${b.index}`];
+  if (transposeTable[`${turn}-${b.index}`]) {
+    return transposeTable[`${turn}-${b.index}`];
   }
 
   // 葉ノードでなければ子ノードを列挙
-  let max_score = -INF;
+  let maxScore = -INF;
   let canput = 0;
   const child_nodes = [];
   for (let coord = 0; coord < 64; coord++) {
@@ -299,7 +295,7 @@ const nega_alpha_transpose = (b, depth, passed, alpha, beta, turn) => {
         value: 0,
         policy: coord,
       });
-      child_nodes[canput].value = calc_move_ordering_value(
+      child_nodes[canput].value = calcMoveOrderingValue(
         child_nodes[canput].index,
         turn,
       );
@@ -313,7 +309,7 @@ const nega_alpha_transpose = (b, depth, passed, alpha, beta, turn) => {
     if (passed) {
       return evaluate(b.index, turn);
     }
-    return -nega_alpha_transpose(b, depth, true, -beta, -alpha, 1 - turn);
+    return -negaAlphaTranspose(b, depth, true, -beta, -alpha, 1 - turn);
   }
 
   // move ordering実行
@@ -323,7 +319,7 @@ const nega_alpha_transpose = (b, depth, passed, alpha, beta, turn) => {
 
   // 探索
   for (let nb of child_nodes) {
-    const g = -nega_alpha_transpose(
+    const g = -negaAlphaTranspose(
       nb,
       depth - 1,
       false,
@@ -332,24 +328,23 @@ const nega_alpha_transpose = (b, depth, passed, alpha, beta, turn) => {
       1 - turn,
     );
     if (g >= beta) {
-      bbb++;
       // 興味の範囲よりもminimax値が上のときは枝刈り
       return g;
     }
     alpha = Math.max(alpha, g);
-    max_score = Math.max(max_score, g);
+    maxScore = Math.max(maxScore, g);
   }
 
   // 置換表に登録
-  transpose_table[`${turn}-${b.index}`] = max_score;
-  return max_score;
+  transposeTable[`${turn}-${b.index}`] = maxScore;
+  return maxScore;
 };
 
 // depth手読みの探索
-const searchB = (b, depth) => {
+const search = (b, depth) => {
   let res = -1;
-  transpose_table = {};
-  former_transpose_table = {};
+  transposeTable = {};
+  formerTransposeTable = {};
   // 子ノードを全列挙
   let canput = 0;
   const child_nodes = [];
@@ -361,21 +356,21 @@ const searchB = (b, depth) => {
   }
   // 1手ずつ探索を深める
   const start_depth = Math.max(1, depth - 3); // 最初に探索する手数
-  for (let search_depth = start_depth; search_depth <= depth; ++search_depth) {
+  for (let searchDepth = start_depth; searchDepth <= depth; ++searchDepth) {
     let alpha = -INF;
     let beta = INF;
     if (canput >= 2) {
       // move orderingのための値を得る
       for (let nb of child_nodes) {
-        nb.value = calc_move_ordering_value(nb.index, 1);
+        nb.value = calcMoveOrderingValue(nb.index, 1);
       }
       // move ordering実行
       child_nodes.sort(sortFnc);
     }
     for (let nb of child_nodes) {
-      const score = -nega_alpha_transpose(
+      const score = -negaAlphaTranspose(
         nb,
-        search_depth - 1,
+        searchDepth - 1,
         false,
         -beta,
         -alpha,
@@ -386,72 +381,8 @@ const searchB = (b, depth) => {
         res = nb.policy;
       }
     }
-    former_transpose_table = JSON.parse(JSON.stringify(transpose_table));
-    transpose_table = {};
-  }
-  return res;
-};
-
-const nega_alpha = (b, depth, passed, alpha, beta, turn) => {
-  visited++;
-  // 葉ノードでは評価関数を実行する
-  if (depth === 0) {
-    return evaluate(b, turn);
-  }
-
-  // 葉ノードでなければ子ノード全部に対して再帰する
-  let max_score = -INF;
-  for (let coord = 0; coord < 64; coord++) {
-    if (isLegal(b, coord, turn)) {
-      const g = -nega_alpha(
-        move(b, coord, turn),
-        depth - 1,
-        false,
-        -beta,
-        -alpha,
-        1 - turn,
-      );
-      if (g >= beta)
-        // 興味の範囲よりもminimax値が上のときは枝刈り
-        return g;
-      alpha = Math.max(alpha, g);
-      max_score = Math.max(max_score, g);
-    }
-  }
-
-  // パスの処理 手番を交代して同じ深さで再帰する
-  if (max_score === -INF) {
-    // 2回連続パスなら評価関数を実行
-    if (passed) {
-      return evaluate(b, turn);
-    }
-    return -nega_alpha(b, depth, true, -beta, -alpha, 1 - turn);
-  }
-
-  return max_score;
-};
-
-// depth手読みの探索
-const searchA = (b, depth) => {
-  let res = -1;
-  let score = 0;
-  let alpha = -INF;
-  let beta = INF;
-  for (let coord = 0; coord < 64; coord++) {
-    if (isLegal(b, coord, 1)) {
-      score = -nega_alpha(
-        move(b, coord, 1),
-        depth - 1,
-        false,
-        -beta,
-        -alpha,
-        0,
-      );
-      if (alpha < score) {
-        alpha = score;
-        res = coord;
-      }
-    }
+    formerTransposeTable = JSON.parse(JSON.stringify(transposeTable));
+    transposeTable = {};
   }
   return res;
 };
@@ -461,7 +392,7 @@ const rowColTo1D = (rowIndex, colIndex) => rowIndex * 8 + colIndex;
 /**
  * 何マスひっくり返せるか
  */
-const move_arr = Array.from(new Array(2), () => {
+const moveArr = Array.from(new Array(2), () => {
   return Array.from(new Array(N_LINE), () => {
     return Array.from(new Array(8), () => new Array(2).fill(0));
   });
@@ -470,39 +401,39 @@ const move_arr = Array.from(new Array(2), () => {
 /**
  * trueなら合法、falseなら非合法
  */
-const legal_arr = Array.from(new Array(2), () => {
+const legalArr = Array.from(new Array(2), () => {
   return Array.from(new Array(N_LINE), () => new Array(8).fill(false));
 });
 
 /**
  * ボードのインデックスのマスの位置をひっくり返した後のインデックス
  */
-const flip_arr = Array.from(new Array(2), () => {
+const flipArr = Array.from(new Array(2), () => {
   return Array.from(new Array(N_LINE), () => new Array(8).fill(0));
 });
 
 /**
  * ボードのインデックスのマスの位置に着手した後のインデックス
  */
-const put_arr = Array.from(new Array(2), () => {
+const putArr = Array.from(new Array(2), () => {
   return Array.from(new Array(N_LINE), () => new Array(8).fill(0));
 });
 
 /**
  * そのマスが関わるインデックス番号の配列(3つのインデックスにしか関わらない場合は最後の要素に-1が入る)
  */
-const place_included = Array.from(new Array(64), () => {
+const placeIncluded = Array.from(new Array(64), () => {
   return new Array(4).fill(0);
 });
 
 /**
  * そのインデックス番号におけるマスのローカルな位置
  */
-const local_place = Array.from(new Array(N_BOARD_IDX), () => {
+const localPlace = Array.from(new Array(N_BOARD_IDX), () => {
   return new Array(64).fill(0);
 });
 
-const cell_score = Array.from(new Array(4), () => {
+const cellScore = Array.from(new Array(4), () => {
   return new Array(N_LINE).fill(0);
 });
 
@@ -510,25 +441,25 @@ for (let idx = 0; idx < N_LINE; idx++) {
   const b = createOneColor(idx, BLACK);
   const w = createOneColor(idx, WHITE);
   for (let place = 0; place < 8; place++) {
-    move_arr[BLACK][idx][place][0] = move_line_half(b, w, place, 0);
-    move_arr[BLACK][idx][place][1] = move_line_half(b, w, place, 1);
-    legal_arr[BLACK][idx][place] =
-      move_arr[BLACK][idx][place][0] || move_arr[BLACK][idx][place][1];
-    move_arr[WHITE][idx][place][0] = move_line_half(w, b, place, 0);
-    move_arr[WHITE][idx][place][1] = move_line_half(w, b, place, 1);
-    legal_arr[WHITE][idx][place] =
-      move_arr[WHITE][idx][place][0] || move_arr[WHITE][idx][place][1];
-    flip_arr[BLACK][idx][place] = idx;
-    flip_arr[WHITE][idx][place] = idx;
-    put_arr[BLACK][idx][place] = idx;
-    put_arr[WHITE][idx][place] = idx;
+    moveArr[BLACK][idx][place][0] = moveLineHalf(b, w, place, 0);
+    moveArr[BLACK][idx][place][1] = moveLineHalf(b, w, place, 1);
+    legalArr[BLACK][idx][place] =
+      moveArr[BLACK][idx][place][0] || moveArr[BLACK][idx][place][1];
+    moveArr[WHITE][idx][place][0] = moveLineHalf(w, b, place, 0);
+    moveArr[WHITE][idx][place][1] = moveLineHalf(w, b, place, 1);
+    legalArr[WHITE][idx][place] =
+      moveArr[WHITE][idx][place][0] || moveArr[WHITE][idx][place][1];
+    flipArr[BLACK][idx][place] = idx;
+    flipArr[WHITE][idx][place] = idx;
+    putArr[BLACK][idx][place] = idx;
+    putArr[WHITE][idx][place] = idx;
     if (b & (1 << (8 - 1 - place))) {
-      flip_arr[WHITE][idx][place] += POW3[8 - 1 - place];
+      flipArr[WHITE][idx][place] += POW3[8 - 1 - place];
     } else if (w & (1 << (8 - 1 - place)))
-      flip_arr[BLACK][idx][place] -= POW3[8 - 1 - place];
+      flipArr[BLACK][idx][place] -= POW3[8 - 1 - place];
     else {
-      put_arr[BLACK][idx][place] -= POW3[8 - 1 - place] * 2;
-      put_arr[WHITE][idx][place] -= POW3[8 - 1 - place];
+      putArr[BLACK][idx][place] -= POW3[8 - 1 - place] * 2;
+      putArr[WHITE][idx][place] -= POW3[8 - 1 - place];
     }
   }
 }
@@ -538,18 +469,18 @@ for (let place = 0; place < 64; place++) {
   for (let idx = 0; idx < N_BOARD_IDX; idx++) {
     for (let l_place = 0; l_place < 8; l_place++) {
       if (GLOBAL_PLACE[idx][l_place] === place)
-        place_included[place][inc_idx++] = idx;
+        placeIncluded[place][inc_idx++] = idx;
     }
   }
-  if (inc_idx === 3) place_included[place][inc_idx] = -1;
+  if (inc_idx === 3) placeIncluded[place][inc_idx] = -1;
 }
 
 for (let idx = 0; idx < N_BOARD_IDX; idx++) {
   for (let place = 0; place < 64; place++) {
-    local_place[idx][place] = -1;
+    localPlace[idx][place] = -1;
     for (let l_place = 0; l_place < 8; l_place++) {
       if (GLOBAL_PLACE[idx][l_place] === place)
-        local_place[idx][place] = l_place;
+        localPlace[idx][place] = l_place;
     }
   }
 }
@@ -560,8 +491,8 @@ for (let idx = 0; idx < N_LINE; idx++) {
 
   for (let place = 0; place < 8; place++) {
     for (let i = 0; i < 8 / 2; ++i) {
-      cell_score[i][idx] += (1 & (b >> place)) * CELL_WEIGHT[i * 8 + place];
-      cell_score[i][idx] -= (1 & (w >> place)) * CELL_WEIGHT[i * 8 + place];
+      cellScore[i][idx] += (1 & (b >> place)) * CELL_WEIGHT[i * 8 + place];
+      cellScore[i][idx] -= (1 & (w >> place)) * CELL_WEIGHT[i * 8 + place];
     }
   }
 }
@@ -645,23 +576,23 @@ const initialState = {
   boardIdx: translateFromArr(initialCells),
   isLegalCell: (state, rowIndex, colIndex) => {
     let res = false;
-    const g_place = rowColTo1D(rowIndex, colIndex);
+    const gPlace = rowColTo1D(rowIndex, colIndex);
     for (let i = 0; i < 3; i++) {
       res |=
-        legal_arr[state.turn][state.boardIdx[place_included[g_place][i]]][
-          local_place[place_included[g_place][i]][g_place]
+        legalArr[state.turn][state.boardIdx[placeIncluded[gPlace][i]]][
+          localPlace[placeIncluded[gPlace][i]][gPlace]
         ];
     }
-    if (place_included[g_place][3] !== -1) {
+    if (placeIncluded[gPlace][3] !== -1) {
       res |=
-        legal_arr[state.turn][state.boardIdx[place_included[g_place][3]]][
-          local_place[place_included[g_place][3]][g_place]
+        legalArr[state.turn][state.boardIdx[placeIncluded[gPlace][3]]][
+          localPlace[placeIncluded[gPlace][3]][gPlace]
         ];
     }
     return res;
   },
   search: (state) => {
-    return searchA(state.boardIdx, 9);
+    return search(state.boardIdx, 8);
   },
 };
 
@@ -669,28 +600,28 @@ const gameInfo = (state = initialState, action) => {
   switch (action.type) {
     case "UPDATE_CELLS": {
       let boardIdxNew = [...state.boardIdx];
-      boardIdxNew = move_p(boardIdxNew, action.index, state.turn, 0);
-      boardIdxNew = move_p(boardIdxNew, action.index, state.turn, 1);
-      boardIdxNew = move_p(boardIdxNew, action.index, state.turn, 2);
-      if (place_included[action.index][3] !== -1) {
-        boardIdxNew = move_p(boardIdxNew, action.index, state.turn, 3);
+      boardIdxNew = moveP(boardIdxNew, action.index, state.turn, 0);
+      boardIdxNew = moveP(boardIdxNew, action.index, state.turn, 1);
+      boardIdxNew = moveP(boardIdxNew, action.index, state.turn, 2);
+      if (placeIncluded[action.index][3] !== -1) {
+        boardIdxNew = moveP(boardIdxNew, action.index, state.turn, 3);
       }
       for (let i = 0; i < 3; i++) {
-        boardIdxNew[place_included[action.index][i]] =
-          put_arr[state.turn][boardIdxNew[place_included[action.index][i]]][
-            local_place[place_included[action.index][i]][action.index]
+        boardIdxNew[placeIncluded[action.index][i]] =
+          putArr[state.turn][boardIdxNew[placeIncluded[action.index][i]]][
+            localPlace[placeIncluded[action.index][i]][action.index]
           ];
       }
-      if (place_included[action.index][3] !== -1) {
-        boardIdxNew[place_included[action.index][3]] =
-          put_arr[state.turn][boardIdxNew[place_included[action.index][3]]][
-            local_place[place_included[action.index][3]][action.index]
+      if (placeIncluded[action.index][3] !== -1) {
+        boardIdxNew[placeIncluded[action.index][3]] =
+          putArr[state.turn][boardIdxNew[placeIncluded[action.index][3]]][
+            localPlace[placeIncluded[action.index][3]][action.index]
           ];
       }
       return {
         ...state,
         boardIdx: [...boardIdxNew],
-        cells: translate_to_arr(boardIdxNew),
+        cells: translateToArr(boardIdxNew),
       };
     }
     case "UPDATE_TURN":
