@@ -637,9 +637,11 @@ const initialState = {
   turn: BLACK,
   cntBlack: 2,
   cntWhite: 2,
-  isEnd: 0,
+  isEnd: -1,
   cells: [].concat(initialCells),
-  validatedCells: Array.from(new Array(64).fill(false)),
+  validatedCells: Array.from(new Array(64).fill(false)).map(
+    (v, index) => index === 19 || index === 26 || index === 37 || index === 44,
+  ),
   boardIdx: translateFromArr(initialCells),
   isLegalCell: (state, rowIndex, colIndex) => {
     let res = false;

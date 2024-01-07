@@ -69,15 +69,12 @@ function Field() {
   };
 
   React.useEffect(() => {
-    dispatch({
-      type: "UPDATE_VALIDATED_CELLS",
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  React.useEffect(() => {
-    console.log(turn, isEnd, validatedCells.some((v) => v))
-    if (isEnd < 2) {
+    console.log(
+      turn,
+      isEnd,
+      validatedCells,
+    );
+    if (-1 < isEnd && isEnd < 2) {
       if (!validatedCells.some((v) => v)) {
         dispatch({
           type: "UPDATE_IS_END",
@@ -100,6 +97,14 @@ function Field() {
           yourTurn();
         }, 3000);
       }
+    } else {
+      console.log(
+        "kita"
+      );
+      dispatch({
+        type: "UPDATE_IS_END",
+        payload: isEnd + 1,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [validatedCells]);
