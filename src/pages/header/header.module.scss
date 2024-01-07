@@ -1,0 +1,15 @@
+@keyframes icon {
+    from {
+        transform: rotate(0deg);
+      }
+  
+      to {
+        transform: rotate(360deg);
+      }
+}
+
+.img {
+    width: 48px;
+    height: 48px;
+    animation: icon 2s linear infinite
+}

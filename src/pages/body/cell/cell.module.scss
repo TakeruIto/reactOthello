@@ -1,0 +1,26 @@
+.flipBlack {
+    height: 36px;
+    width: 36px;
+    border-radius: 50%;
+    background-color:  #5D3587;
+    transition:all 1s ease; 
+    transform:rotateY( 0deg );
+}
+
+.flipWhite {
+    height: 36px;
+    width: 36px;
+    border-radius: 50%;
+    background-color:  #FFD1E3;
+    transition:all 1s ease; 
+    transform:rotateY( 180deg );
+}
+
+.flipNone {
+    height: 36px;
+    width: 36px;
+    border-radius: 50%;
+    background-color:  rgba(0,0,0,0);
+    transition:all 1s ease; 
+    transform:rotateY( 90deg );
+}
