@@ -21,6 +21,7 @@ function Field() {
 
   const getRowColIndex = () => {
     const coord = search();
+    console.log(turn, coord)
     return [Math.floor(coord / 8), coord % 8];
     // const extrctFrom = validatedCells
     //   .map((data, index) => {
