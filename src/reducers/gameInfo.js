@@ -270,7 +270,7 @@ const evaluate = (b, turn) => {
   return res;
 };
 
-const sortFnc = (a, b) => a.value - b.value
+const sortFnc = (a, b) => a.value - b.value;
 let visited = 0;
 let aaa = 0;
 let bbb = 0;
