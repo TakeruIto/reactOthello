@@ -389,7 +389,6 @@ const searchB = (b, depth) => {
     former_transpose_table = JSON.parse(JSON.stringify(transpose_table));
     transpose_table = {};
   }
-  console.log(res, visited, aaa, bbb);
   return res;
 };
 
@@ -454,7 +453,6 @@ const searchA = (b, depth) => {
       }
     }
   }
-  console.log(res, visited);
   return res;
 };
 
@@ -661,7 +659,7 @@ const initialState = {
     return res;
   },
   search: (state) => {
-    return searchB(state.boardIdx, 7);
+    return searchA(state.boardIdx, 9);
   },
 };
 
